@@ -20,6 +20,11 @@ func TestFullWorkflow(t *testing.T) {
 		t.Errorf("❌ DateTimeStamp failed: %v", err)
 		return
 	}
-	fmt.Println("➡️ DateTimeStamp output:")
+	fmt.Println("➡️ Raw DateTimeStamp:")
 	fmt.Print(timestamp)
+
+	// Test SafeTimeStamp
+	safe := SafeTimeStamp(timestamp, 1)
+	fmt.Println("\n➡️ SafeTimeStamp (mode 1):")
+	fmt.Print(safe)
 }
