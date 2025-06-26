@@ -32,7 +32,7 @@ func DateTimeStamp() (string, error) {
 	javaFilePath := filepath.Join(tempDir, javaFileName)
 
 	// Java source code
-	javaCode := ` + "`" + `import java.time.*;
+	javaCode := `import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
 
@@ -54,7 +54,7 @@ public class date_time_stamp {
         output = output.replace(time_part, time_part + " " + tz);
         System.out.println(output);
     }
-}` + "`" + `
+}`
 
 	// Write the Java file
 	if err := os.WriteFile(javaFilePath, []byte(javaCode), 0644); err != nil {
