@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 // DateTimeStamp runs a temporary Java program that returns a formatted date-time string
@@ -81,4 +82,12 @@ public class date_time_stamp {
 	}
 
 	return out.String(), nil
+}
+
+// SafeTimeStamp optionally replaces "/" with " slash " if mode == 1.
+func SafeTimeStamp(timestamp string, mode int) string {
+	if mode == 1 {
+		return strings.ReplaceAll(timestamp, "/", " slash ")
+	}
+	return timestamp
 }
