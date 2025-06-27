@@ -88,7 +88,8 @@ public class date_time_stamp {
 		return "", fmt.Errorf("❌ Failed to run Java class: %w\nOutput:\n%s", err, out.String())
 	}
 
-	return out.String(), nil
+	// Trim any trailing newline or carriage return
+	return strings.TrimSpace(out.String()), nil
 }
 
 // SafeTimeStamp optionally replaces "/" with " slash " if mode == 1.
