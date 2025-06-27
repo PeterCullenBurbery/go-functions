@@ -9,19 +9,30 @@ import (
 	"strings"
 )
 
-// DateTimeStamp runs a temporary Java program that returns a formatted date-time string
-// with time zone, ISO week/year/day, and day-of-year.
-func DateTimeStamp() (string, error) {
-	// Ensure javac is available
-	if _, err := exec.LookPath("javac"); err != nil {
-		return "", fmt.Errorf("❌ 'javac' not found in PATH. Please ensure JDK is installed")
-	}
-	// Ensure java is available
-	if _, err := exec.LookPath("java"); err != nil {
-		return "", fmt.Errorf("❌ 'java' not found in PATH. Please ensure JRE is installed")
+// DateTimeStamp returns a timestamp string formatted via a temporary Java program.
+// It supports optional overrides for javac/java paths.
+func DateTimeStamp(args ...string) (string, error) {
+	var javacCmd, javaCmd string
+
+	switch len(args) {
+	case 0:
+		// Default: look in PATH
+		var err error
+		javacCmd, err = exec.LookPath("javac")
+		if err != nil {
+			return "", fmt.Errorf("❌ 'javac' not found in PATH. Please ensure JDK is installed")
+		}
+		javaCmd, err = exec.LookPath("java")
+		if err != nil {
+			return "", fmt.Errorf("❌ 'java' not found in PATH. Please ensure JRE is installed")
+		}
+	case 2:
+		javacCmd = args[0]
+		javaCmd = args[1]
+	default:
+		return "", fmt.Errorf("❌ DateTimeStamp() expects 0 or 2 arguments (javacPath, javaPath)")
 	}
 
-	// Create a temporary folder
 	tempDir, err := os.MkdirTemp("", "date_time_stamp")
 	if err != nil {
 		return "", fmt.Errorf("❌ Failed to create temp directory: %w", err)
@@ -32,7 +43,6 @@ func DateTimeStamp() (string, error) {
 	const className = "date_time_stamp"
 	javaFilePath := filepath.Join(tempDir, javaFileName)
 
-	// Java source code
 	javaCode := `import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
@@ -57,26 +67,23 @@ public class date_time_stamp {
     }
 }`
 
-	// Write the Java file
 	if err := os.WriteFile(javaFilePath, []byte(javaCode), 0644); err != nil {
 		return "", fmt.Errorf("❌ Failed to write Java file: %w", err)
 	}
 
-	// Compile it
-	cmdCompile := exec.Command("javac", javaFileName)
+	// Compile
+	cmdCompile := exec.Command(javacCmd, javaFileName)
 	cmdCompile.Dir = tempDir
 	if err := cmdCompile.Run(); err != nil {
 		return "", fmt.Errorf("❌ Failed to compile Java file: %w", err)
 	}
 
-	// Run it and capture the output
-	cmdRun := exec.Command("java", className)
+	// Run
+	cmdRun := exec.Command(javaCmd, className)
 	cmdRun.Dir = tempDir
-
 	var out bytes.Buffer
 	cmdRun.Stdout = &out
 	cmdRun.Stderr = &out
-
 	if err := cmdRun.Run(); err != nil {
 		return "", fmt.Errorf("❌ Failed to run Java class: %w\nOutput:\n%s", err, out.String())
 	}
