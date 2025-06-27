@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-func getCaseInsensitiveMap(m map[string]interface{}, key string) map[string]interface{} {
+func GetCaseInsensitiveMap(m map[string]interface{}, key string) map[string]interface{} {
 	for k, v := range m {
 		if strings.EqualFold(k, key) {
 			if result, ok := v.(map[string]interface{}); ok {
@@ -15,7 +15,7 @@ func getCaseInsensitiveMap(m map[string]interface{}, key string) map[string]inte
 	return nil
 }
 
-func getCaseInsensitiveList(m map[string]interface{}, key string) []string {
+func GetCaseInsensitiveList(m map[string]interface{}, key string) []string {
 	for k, v := range m {
 		if strings.EqualFold(k, key) {
 			raw, ok := v.([]interface{})
@@ -34,7 +34,7 @@ func getCaseInsensitiveList(m map[string]interface{}, key string) []string {
 	return nil
 }
 
-func getCaseInsensitiveString(m map[string]interface{}, key string) string {
+func GetCaseInsensitiveString(m map[string]interface{}, key string) string {
 	for k, v := range m {
 		if strings.EqualFold(k, key) {
 			if str, ok := v.(string); ok {
@@ -45,11 +45,11 @@ func getCaseInsensitiveString(m map[string]interface{}, key string) string {
 	return ""
 }
 
-func getNestedString(m map[string]interface{}, key string) string {
-	if val := getCaseInsensitiveString(m, key); val != "" {
+func GetNestedString(m map[string]interface{}, key string) string {
+	if val := GetCaseInsensitiveString(m, key); val != "" {
 		return val
 	}
-	if sub := getCaseInsensitiveMap(m, key); sub != nil {
+	if sub := GetCaseInsensitiveMap(m, key); sub != nil {
 		for _, v := range sub {
 			if s, ok := v.(string); ok {
 				return s
@@ -59,6 +59,6 @@ func getNestedString(m map[string]interface{}, key string) string {
 	return ""
 }
 
-func getNestedMap(m map[string]interface{}, key string) map[string]interface{} {
-	return getCaseInsensitiveMap(m, key)
+func GetNestedMap(m map[string]interface{}, key string) map[string]interface{} {
+	return GetCaseInsensitiveMap(m, key)
 }
