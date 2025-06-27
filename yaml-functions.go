@@ -4,6 +4,8 @@ import (
 	"strings"
 )
 
+// GetCaseInsensitiveMap searches for a key in the map (case-insensitively) and returns its value as a map[string]interface{}.
+// Returns nil if the key is not found or the value is not a map.
 func GetCaseInsensitiveMap(m map[string]interface{}, key string) map[string]interface{} {
 	for k, v := range m {
 		if strings.EqualFold(k, key) {
@@ -15,6 +17,9 @@ func GetCaseInsensitiveMap(m map[string]interface{}, key string) map[string]inte
 	return nil
 }
 
+// GetCaseInsensitiveList searches for a key in the map (case-insensitively) and returns its value as a []string.
+// Only string elements are included in the returned slice.
+// Returns nil if the key is not found or the value is not a list.
 func GetCaseInsensitiveList(m map[string]interface{}, key string) []string {
 	for k, v := range m {
 		if strings.EqualFold(k, key) {
@@ -34,6 +39,8 @@ func GetCaseInsensitiveList(m map[string]interface{}, key string) []string {
 	return nil
 }
 
+// GetCaseInsensitiveString searches for a key in the map (case-insensitively) and returns its value as a string.
+// Returns an empty string if the key is not found or the value is not a string.
 func GetCaseInsensitiveString(m map[string]interface{}, key string) string {
 	for k, v := range m {
 		if strings.EqualFold(k, key) {
@@ -45,6 +52,10 @@ func GetCaseInsensitiveString(m map[string]interface{}, key string) string {
 	return ""
 }
 
+// GetNestedString attempts to retrieve a string value for the given key from the map.
+// First, it tries to get the string directly using GetCaseInsensitiveString.
+// If not found, it then checks if the key maps to a nested map and returns the first string value from that map.
+// Returns an empty string if no suitable value is found.
 func GetNestedString(m map[string]interface{}, key string) string {
 	if val := GetCaseInsensitiveString(m, key); val != "" {
 		return val
@@ -59,6 +70,8 @@ func GetNestedString(m map[string]interface{}, key string) string {
 	return ""
 }
 
+// GetNestedMap is a convenience wrapper that retrieves a nested map for a given key using case-insensitive matching.
+// Returns nil if the key is not found or the value is not a map.
 func GetNestedMap(m map[string]interface{}, key string) map[string]interface{} {
 	return GetCaseInsensitiveMap(m, key)
 }
