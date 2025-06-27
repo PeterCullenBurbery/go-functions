@@ -1,40 +1,47 @@
 package gofunctions
 
 import (
+	"bytes"
 	"fmt"
-	"os/exec"
-	"os"
 	"log"
+	"os"
+	"os/exec"
+	"strings"
 )
 
-// addDefenderExclusion adds a directory to Microsoft Defender's exclusion list using PowerShell.
-// This prevents Defender from scanning or interfering with the specified path.
-//
-// Parameters:
-//   path - the full file system path to exclude from Defender scans.
-//
-// Example:
-//   addDefenderExclusion("C:\\my\\safe\\tools")
-func addDefenderExclusion(path string) {
-	// Build the PowerShell command to add the exclusion.
-	// Note: path is quoted to support spaces or special characters.
+// AddDefenderExclusion adds a directory to Microsoft Defender's exclusion list using PowerShell,
+// but only if it's not already excluded.
+func AddDefenderExclusion(path string) {
+	// First, check if the path is already excluded
+	checkCmd := exec.Command("powershell", "-NoProfile", "-ExecutionPolicy", "Bypass",
+		"-Command", "Get-MpPreference | Select-Object -ExpandProperty ExclusionPath")
+
+	var checkOut bytes.Buffer
+	checkCmd.Stdout = &checkOut
+	checkCmd.Stderr = &checkOut
+
+	if err := checkCmd.Run(); err != nil {
+		log.Printf("⚠️ Could not check existing exclusions: %v", err)
+	} else {
+		existing := strings.Split(checkOut.String(), "\n")
+		for _, line := range existing {
+			// ✅ Trim before comparing
+			if strings.EqualFold(strings.TrimSpace(line), path) {
+				log.Printf("ℹ️ Defender exclusion already exists:\n↳ %s", path)
+				return
+			}
+		}
+	}
+
+	// Add the exclusion if it doesn't exist
 	psCommand := fmt.Sprintf(`Add-MpPreference -ExclusionPath "%s"`, path)
+	addCmd := exec.Command("powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", psCommand)
+	addCmd.Stdout = os.Stdout
+	addCmd.Stderr = os.Stderr
 
-	// Construct the exec.Command to run PowerShell with flags to avoid profile interference
-	// and bypass execution policy restrictions.
-	cmd := exec.Command("powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", psCommand)
-
-	// Attach the current process's standard output and error to the PowerShell command,
-	// so any messages from PowerShell are shown in the terminal.
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	// Run the command and handle success or failure.
-	if err := cmd.Run(); err != nil {
-		// Log a warning if the exclusion fails, including the error message.
+	if err := addCmd.Run(); err != nil {
 		log.Printf("⚠️ Failed to exclude from Defender: %s\n↳ %v", path, err)
 	} else {
-		// Log a success message when the exclusion is successfully added.
 		log.Printf("🛡️ Added Defender exclusion:\n↳ %s", path)
 	}
 }
