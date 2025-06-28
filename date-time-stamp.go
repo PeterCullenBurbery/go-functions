@@ -52,7 +52,7 @@ public class date_time_stamp {
         ZonedDateTime now = ZonedDateTime.now();
         ZoneId tz = now.getZone();
         String date_part = now.format(DateTimeFormatter.ofPattern("yyyy-0MM-0dd"));
-        String time_part = now.format(DateTimeFormatter.ofPattern("0HH.0mm.0ss.nnnnnnn"));
+        String time_part = now.format(DateTimeFormatter.ofPattern("0HH.0mm.0ss.nnnnnnnnn"));
         WeekFields wf = WeekFields.ISO;
         int week = now.get(wf.weekOfWeekBasedYear());
         int weekday = now.get(wf.dayOfWeek());
